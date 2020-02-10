@@ -22,41 +22,46 @@ in Queue. Finally Print the Player and the Cards received by each Player.
 object deckOfCardsPlus {
   def main(args: Array[String]): Unit = {
     var flag = true
-
-
+    while (flag) {
+      try {
         var total_cards = 52
         var card_Flag = true
-        while(card_Flag) {
+        var pack: Cards = new Cards()
+        while (card_Flag) {
           print("Enter the count of players : ")
           var players = scala.io.StdIn.readInt()
-          if(players < 1 || players > total_cards ){
+          if (players < 1 || players > total_cards) {
             print("Please enter valid players\n")
-          }else{
+          } else {
             card_Flag = false
-            var cat:Cards = new Cards()
-            cat.shuffle()
-
           }
+          pack.shuffle()
           var card_set = total_cards / players
           println("Each player will get " + card_set + " Cards")
 
-          var playerArray:Array[Player] =  new Array[Player](players)
-          for(i <- 0 until playerArray.length){
-            playerArray(i) = new Player(card_set)
+
+          var playerArray: Array[Player] = new Array[Player](players)
+          for (i <- playerArray.indices) {
+            playerArray(i) = new Player()
           }
 
-          var s = playerArray.e
+          for (i <- playerArray.indices) {
+            for (j <- 0 until card_set) {
+              playerArray(i).add(pack.get_card())
+            }
+          }
 
-
+          for (i <- playerArray.indices) {
+            playerArray(i).display()
+          }
+        }
         flag = false
-
-
-
-
-
-
-
-
+      } catch {
+        case _ => {
+          print("Something went wrong! Exception occurred")
+        }
+      }
+    }
 
   }
 
@@ -70,6 +75,7 @@ object deckOfCardsPlus {
       pack(i) = i
     }
 
+    //Fuction to reset cards
     def reset(): Unit = {
       for (i <- pack.indices) {
         pack(i) = i
@@ -104,7 +110,6 @@ object deckOfCardsPlus {
             distributed_cards(i)(j) = get_card().toString
           }
         }
-
         for (i <- 0 until players) {
           print("player " + (i + 1) + " : ")
           for (j <- 0 until card_set) {
@@ -137,8 +142,8 @@ object deckOfCardsPlus {
 
       } else if (given_card <= 25) {
 
-        val card_type = "♦ "
-        var card_str = card_type + " "
+        val card_type = "♦"
+        var card_str = card_type + ""
         val type_card = given_card % 13
         if (type_card == 9) {
           card_str += "Jack"
@@ -154,8 +159,8 @@ object deckOfCardsPlus {
         print(card_str)
 
       } else if (given_card <= 38) {
-        val card_type = "♥ "
-        var card_str = card_type + " "
+        val card_type = "♥"
+        var card_str = card_type + ""
         val type_card = given_card % 13
         if (type_card == 9) {
           card_str += "Jack"
@@ -168,7 +173,7 @@ object deckOfCardsPlus {
         } else {
           card_str += (type_card + 2).toString
         }
-        print(card_str)
+        print(card_str + " ")
 
       } else if (given_card <= 51) {
         val card_type = "♠ "
@@ -202,12 +207,28 @@ object deckOfCardsPlus {
   }
 
   //Class to store Player data
-  class Player {
-    var cards:Array[Int] = _
+  class Player() {
+    var myPack: Queue = new Queue()
+    var cat: Cards = new Cards()
 
-    def this(size:Int){
-      this()
-      var cards:Array[Int] = new Array[Int](size)
+    //Function to add card in queue
+    def add(num: Int): Unit = {
+      myPack.enqueue(num)
+    }
+
+    //Function to display user cards
+    def display(): Unit = {
+      print("Cards are : ")
+      while (myPack.isNotEmpty) {
+        cat.printCard(myPack.first())
+        print("    ")
+        myPack.dequeue()
+      }
+      println()
+    }
+
+
+  }
 
   //class Linked list
   class Queue {
@@ -218,6 +239,7 @@ object deckOfCardsPlus {
     var min: Int = 0
     var max: Int = 0
 
+    //Function to display queue
     def display(): Unit = {
       if (isEmpty) {
         print("queue is Empty")
@@ -230,6 +252,21 @@ object deckOfCardsPlus {
       }
     }
 
+    //Function to check queue is empty
+    def isEmpty: Boolean = {
+      if (size == 0) {
+        true
+      } else {
+        false
+      }
+    }
+
+    //Function to check queue size
+    def size: Int = {
+      len
+    }
+
+    //Function to add data in queue
     def enqueue(num: Int): Unit = {
       var temp: Node = new Node(num)
       if (isEmpty) {
@@ -248,13 +285,13 @@ object deckOfCardsPlus {
           temp.prev = rear
           rear = temp
           this.max = num
-        }else{
+        } else {
           var temp1 = this.front
-          while(temp1.next.data < num){
+          while (temp1.next.data < num) {
             temp1 = temp1.next
           }
           temp.next = temp1.next
-          temp.prev =temp1
+          temp.prev = temp1
           temp1.next = temp
         }
 
@@ -262,49 +299,47 @@ object deckOfCardsPlus {
       len += 1
     }
 
-    def isEmpty: Boolean = {
-      if (size == 0) {
-        true
-      } else {
-        false
-      }
-    }
-
-    def size: Int = {
-      len
-    }
-
+    //Function to get min
     def getMin: Int = {
       this.min
     }
 
+    //Function to get max
     def getMax: Int = {
       this.max
     }
 
-    def isNotEmpty:Boolean={
-      if(isEmpty){
+
+    //Function to check queue is not empty
+    def isNotEmpty: Boolean = {
+      if (isEmpty) {
         false
-      }else{
+      } else {
         true
       }
     }
-    def dequeue(): Unit ={
-        if(isEmpty){
-          print("Queue is empty")
-        }else{
-          if(this.len == 1){
-            this.front = null
-            this.rear = null
-            this.max = 0
-            this.min = 0
-          }else{
-            this.rear = rear.prev
-            this.rear.next = null
-            this.max = rear.data
-          }
-          len -= 1
+
+    //Function to delete data from front
+    def dequeue(): Unit = {
+      if (isEmpty) {
+        print("Queue is empty")
+      } else {
+        if (this.len == 1) {
+          this.front = null
+          this.rear = null
+          this.max = 0
+          this.min = 0
+        } else {
+          this.front = front.next
+          this.front.prev = null
+          this.min = this.front.data
         }
+        len -= 1
+      }
+    }
+
+    def first(): Int = {
+      this.front.data
     }
 
     //class Node to store data
@@ -322,4 +357,4 @@ object deckOfCardsPlus {
   }
 
 
-} 
+}
