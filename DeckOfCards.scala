@@ -21,6 +21,7 @@ object DeckOfCards {
         var players = scala.io.StdIn.readInt()
         cat.shuffle()
         cat.distribute(players)
+
         flag = false
 
       }
@@ -40,7 +41,7 @@ object DeckOfCards {
     }
 
     def reset(): Unit ={
-      for (i <- 0 until pack.length){
+      for (i <- pack.indices){
         pack(i) = i
       }
     }
@@ -63,7 +64,7 @@ object DeckOfCards {
       if (players < 0 || players > 52) {
         println("Invalid input Not possible to distribute : ")
       } else {
-        var card_set = total_cards / players
+        val card_set = total_cards / players
         println("Each player will get " + card_set + " Cards")
         var distributed_cards = Array.ofDim[String](players, card_set)
         for (i <- 0 until players) {
@@ -86,9 +87,9 @@ object DeckOfCards {
     //Function to print given card by its number
     def printCard(given_card: Int): Unit = {
       if (given_card <= 12) {
-        var card_type = "♣"
+        val card_type = "♣"
         var card_str = card_type + " "
-        var type_card = given_card % 13
+        val type_card = given_card % 13
         if (type_card == 9) {
           card_str += "Jack"
         } else if (type_card == 10) {
@@ -104,9 +105,9 @@ object DeckOfCards {
 
       } else if (given_card <= 25) {
 
-        var card_type = "♦ "
+        val card_type = "♦ "
         var card_str = card_type + " "
-        var type_card = given_card % 13
+        val type_card = given_card % 13
         if (type_card == 9) {
           card_str += "Jack"
         } else if (type_card == 10) {
@@ -121,9 +122,9 @@ object DeckOfCards {
         print(card_str)
 
       } else if (given_card <= 38) {
-        var card_type = "♥ "
+        val card_type = "♥ "
         var card_str = card_type + " "
-        var type_card = given_card % 13
+        val type_card = given_card % 13
         if (type_card == 9) {
           card_str += "Jack"
         } else if (type_card == 10) {
@@ -138,9 +139,9 @@ object DeckOfCards {
         print(card_str)
 
       } else if (given_card <= 51) {
-        var card_type = "♠ "
+        val card_type = "♠ "
         var card_str = card_type + " "
-        var type_card = given_card % 13
+        val type_card = given_card % 13
         if (type_card == 9) {
           card_str += "Jack"
         } else if (type_card == 10) {
