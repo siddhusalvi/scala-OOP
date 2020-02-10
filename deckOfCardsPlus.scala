@@ -22,25 +22,42 @@ in Queue. Finally Print the Player and the Cards received by each Player.
 object deckOfCardsPlus {
   def main(args: Array[String]): Unit = {
     var flag = true
-    while (flag) {
-      try {
+
+
+        var total_cards = 52
+        var card_Flag = true
+        while(card_Flag) {
+          print("Enter the count of players : ")
+          var players = scala.io.StdIn.readInt()
+          if(players < 1 || players > total_cards ){
+            print("Please enter valid players\n")
+          }else{
+            card_Flag = false
+            var cat:Cards = new Cards()
+            cat.shuffle()
+
+          }
+          var card_set = total_cards / players
+          println("Each player will get " + card_set + " Cards")
+
+          var playerArray:Array[Player] =  new Array[Player](players)
+          for(i <- 0 until playerArray.length){
+            playerArray(i) = new Player(card_set)
+          }
+
+          var s = playerArray.e
+
+
         flag = false
-        var Q: Queue = new Queue()
-
-
-
-        Q.display()
 
 
 
 
 
 
-      }
-      catch {
-        case _ => print("Something went wrong Error occurred.")
-      }
-    }
+
+
+
   }
 
   //Class to store card data
@@ -186,8 +203,11 @@ object deckOfCardsPlus {
 
   //Class to store Player data
   class Player {
+    var cards:Array[Int] = _
 
-  }
+    def this(size:Int){
+      this()
+      var cards:Array[Int] = new Array[Int](size)
 
   //class Linked list
   class Queue {
