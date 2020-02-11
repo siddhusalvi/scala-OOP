@@ -1,4 +1,7 @@
+import java.io.PrintWriter
+import java.io.File
 import address_book.Person
+
 
 /*
 Filename: address_book
@@ -66,6 +69,14 @@ object address_book {
             }
 
           }else if (choice == 3){
+            if(filled_persons == 0){
+              print("\nAddress book is empty!\n")
+            }else{
+              val writer = new PrintWriter(new File("/home/admin1/IdeaProjects/OOPs/src/main/scala/Addressbook.txt"))
+              writer.write(getPersonData(personData))
+              writer.close()
+              print("Operation successfull")
+            }
 
 
           }else if (choice == 4){
@@ -140,7 +151,7 @@ object address_book {
   def find_id_deletion(people: Array[Person]): Int = {
   var check_flag = true
   while(check_flag){
-    print("Enter user first to edit its details : ")
+    print("Enter user firstname to edit its details : ")
     var username = scala.io.StdIn.readLine()
     var index = 0
     for (i <- people) {
@@ -157,7 +168,19 @@ object address_book {
   }
   -1
   }
+  def getPersonData(people: Array[Person]):String={
+   var user_data = " "
+   for(index <- people){
+     user_data += "First name : " + index.first_name + "\n"
+     user_data += "Last name : " + index.last_name + "\n"
+     user_data += "Address : " + index.address + "\n"
+     user_data += "City : " + index.city + "\n"
+     user_data += "Zip code : " + index.zip + "\n"
+     user_data += "Phone number : " + index.phone + "\n"
 
+  }
+  user_data
+  }
   def delete_user(people: Array[Person], index: Int): Array[Person] = {
     var _temp_array: Array[Person] = new Array[Person](people.length - 1)
     for (i <- people.indices) {
