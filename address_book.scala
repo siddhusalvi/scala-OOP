@@ -31,11 +31,51 @@ object address_book {
         print("How much People do you want to add in Address book : ")
         var people = scala.io.StdIn.readInt()
         var personData: Array[Person] = new Array[Person](people)
-        for (i <- personData.indices) {
+        var filled_persons = 0
+        for(i <- personData.indices){
           personData(i) = new Person()
-          personData(i).addInfo()
-          delete_info(personData)
         }
+
+        var operation_flag = true
+        while(operation_flag){
+          print("What do you want to do :1.add details 2.delete detail 3.Save details 4.Edit details 5.Exit  : ")
+          var choice = scala.io.StdIn.readInt()
+          if(choice == 5){
+            operation_flag = false
+          }else if(choice == 1){
+            if(filled_persons < people){
+              personData(filled_persons).addInfo()
+              filled_persons += 1
+            }else{
+              print("Cannot add more details Address book is full.")
+            }
+          }else if (choice == 2){
+            if(filled_persons == 0){
+              print("Address book is already empty\n")
+            }else if(filled_persons == 1){
+              print("there is only single person data do you want to delete it ? (y) : ")
+              var input = scala.io.StdIn.readLine()
+              if(input.equals('y')){
+                personData = null
+              }
+              filled_persons -= 1
+            }else{
+
+            }
+
+          }else if (choice == 3){
+
+          }else if (choice == 4){
+
+          }else{
+            print("\nInvalid input Please Enter valid input : \n")
+          }
+        }
+
+
+
+
+
 
         flag = false
       }
@@ -43,6 +83,50 @@ object address_book {
         case _ => print("Something went wrong Error occurred.")
       }
     }
+  }
+
+  def delete_info(people: Array[Person]): Array[Person] = {
+    var operation_flag: Boolean = true
+    while (operation_flag) {
+      print("Enter user's first name to delete its record : ")
+      var name = scala.io.StdIn.readLine()
+      var presnt_flag: Boolean = false
+      var index = 0
+      for (i <- people.indices) {
+        if (people(i).first_name.equals(name)) {
+          print("First name is present." + index)
+          presnt_flag = true
+          operation_flag = false
+          var new_data = delete_user(people, index)
+          print("Informataion deleted.")
+          return new_data
+
+        }
+
+        if (!presnt_flag) {
+          index += 1
+        }
+
+      }
+      if (!presnt_flag) {
+        print("User not fount do you still want to delete (y) : ")
+        var input = scala.io.StdIn.readLine()
+        if (!input.equals("y")) {
+          operation_flag = false
+        }
+      }
+    }
+    people
+  }
+
+  def delete_user(people: Array[Person], index: Int): Array[Person] = {
+    var _temp_array: Array[Person] = new Array[Person](people.length - 1)
+    for (i <- people.indices) {
+      if (i != index) {
+        _temp_array(i) = people(i)
+      }
+    }
+    _temp_array
   }
 
   def sort_By_Lastname(people: Array[Person]): Array[Person] = {
@@ -57,43 +141,6 @@ object address_book {
     }
     people
   }
-  def delete_info(people: Array[Person]): Array[Person] = {
-     var operation_flag:Boolean = true
-    while(operation_flag) {
-      print("Enter user's first name to delete its record : ")
-      var name = scala.io.StdIn.readLine()
-      var presnt_flag: Boolean = false
-      var index = 0
-      for (i <- people.indices) {
-        if (people(i).first_name.equals(name)) {
-          print("First name is present."+index)
-          presnt_flag = true
-          operation_flag = false
-
-        }
-
-        if(!presnt_flag){
-          index += 1
-        }
-
-      }
-      if(!presnt_flag){
-        print("User not fount do you still want to delete (y) : ")
-        var input = scala.io.StdIn.readLine()
-        if(!input.equals("y")){
-
-          operation_flag = false
-        }
-      }
-    }
-    people
-  }
-
-  def delete_user(people: Array[Person],name:String): Array[Person] = {
-
-
-  }
-
 
   class Person {
     var first_name: String = _
@@ -150,14 +197,19 @@ object address_book {
 
     //Function to display data
     def display(): Unit = {
-      var data: String = ""
-      data += "First name : " + this.first_name + "\n"
-      data += "Last name : " + this.last_name + "\n"
-      data += "Address : " + this.address + "\n"
-      data += "City : " + this.city + "\n"
-      data += "Zip code : " + this.zip + "\n"
-      data += "Phone number : " + this.phone + "\n"
-      print(data)
+      if (this == null) {
+        print("Adressbook  is empty ")
+      } else {
+        var data: String = ""
+        data += "First name : " + this.first_name + "\n"
+        data += "Last name : " + this.last_name + "\n"
+        data += "Address : " + this.address + "\n"
+        data += "City : " + this.city + "\n"
+        data += "Zip code : " + this.zip + "\n"
+        data += "Phone number : " + this.phone + "\n"
+        print(data)
+      }
+
     }
 
 
