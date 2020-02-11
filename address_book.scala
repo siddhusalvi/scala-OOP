@@ -1,4 +1,4 @@
-
+import address_book.Person
 
 /*
 Filename: address_book
@@ -38,16 +38,16 @@ object address_book {
 
         var operation_flag = true
         while(operation_flag){
-          print("What do you want to do :1.add details 2.delete detail 3.Save details 4.Edit details 5.Exit  : ")
+          print("\nWhat do you want to do :\n1.add details \n2.delete detail \n3.Save details \n4.Edit details \n5.display details \n6.sort \n7.Exit  : \n")
           var choice = scala.io.StdIn.readInt()
-          if(choice == 5){
+          if(choice == 7){
             operation_flag = false
           }else if(choice == 1){
             if(filled_persons < people){
               personData(filled_persons).addInfo()
               filled_persons += 1
             }else{
-              print("Cannot add more details Address book is full.")
+              print("Cannot add more details Address book is full.\n")
             }
           }else if (choice == 2){
             if(filled_persons == 0){
@@ -60,12 +60,30 @@ object address_book {
               }
               filled_persons -= 1
             }else{
-
+             var new_person_data = delete_info(personData)
+             personData = new_person_data
+             filled_persons -= 1
             }
 
           }else if (choice == 3){
 
+
           }else if (choice == 4){
+            if(filled_persons == 0){
+              print("\nAddress book is not filled\n")
+            }else{
+              var index = find_id_deletion(personData)
+              if(index >=0){
+                personData(index).editInfo()
+              }
+            }
+
+          }else if (choice == 5){
+            for(i <-personData.indices){
+              personData(i).display()
+            }
+
+          }else if (choice == 6){
 
           }else{
             print("\nInvalid input Please Enter valid input : \n")
@@ -117,6 +135,27 @@ object address_book {
       }
     }
     people
+  }
+
+  def find_id_deletion(people: Array[Person]): Int = {
+  var check_flag = true
+  while(check_flag){
+    print("Enter user first to edit its details : ")
+    var username = scala.io.StdIn.readLine()
+    var index = 0
+    for (i <- people) {
+      if (i.first_name.equals(username)) {
+        return index
+      }
+      index += 1
+    }
+    print("User not found Do you still want to continue (y): ")
+    var input = scala.io.StdIn.readLine()
+    if(!input.equals("y")){
+     check_flag = false
+    }
+  }
+  -1
   }
 
   def delete_user(people: Array[Person], index: Int): Array[Person] = {
