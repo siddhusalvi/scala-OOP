@@ -5,7 +5,7 @@ import scala.io.Source
 /*
 Filename: inventory_data_management
 Created: Siddhesh Salvi
-Change history:11.2.2020 / Siddhesh Salvi
+Change history:13.2.2020 / Siddhesh Salvi
 2. JSON Inventory Data Management of Rice, Pulses and Wheats
 a. Desc -> Create a JSON file having Inventory Details for Rice, Pulses and Wheats
 with properties name, weight, price per kg.
@@ -27,7 +27,7 @@ object inventory_data_management {
     var json_mgr = new Gson()
     var grains = loadData()
     while (flag) {
-
+      try{
       print("1:load data from JSON \t2:Create new data \t3:Calculate total report \t4:Save data \t5:exit : ")
       var choice = scala.io.StdIn.readInt()
       if (choice == 5) {
@@ -60,6 +60,11 @@ object inventory_data_management {
 
       }else {
         print("Please enter valid input : ")
+      }
+
+      }
+      catch{
+        case _=>print("Something went wrong Error occurred.")
       }
     }
   }
