@@ -1,0 +1,24 @@
+ First name : sid
+Last name : sal
+Address : rat
+City : rat
+Zip code : 415612
+Phone number : 9769037262
+First name : vai
+Last name : yes
+Address : nan
+City : nan
+Zip code : 415613
+Phone number : 9876543210
+First name : sun
+Last name : raj
+Address : pat
+City : pat
+Zip code : 415614
+Phone number : 4156147891
+First name : rink
+Last name : aak
+Address : hyd
+City : hyd
+Zip code : 415615
+Phone number : 4156192536
