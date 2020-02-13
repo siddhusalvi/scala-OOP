@@ -1,7 +1,5 @@
 import java.io.FileWriter
-
 import com.google.gson.Gson
-
 import scala.io.Source
 
 /*
@@ -65,6 +63,8 @@ object inventory_data_management {
       }
     }
   }
+
+  //Function to load data from file to class
   def loadData():Array[Inventory]={
     var json_mgr = new Gson()
     var grain_data: String = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/grains.json"
@@ -72,6 +72,7 @@ object inventory_data_management {
     var data:Array[Inventory] = json_mgr.fromJson(strGrains, classOf[Array[Inventory]])
     data
   }
+
   //Function to create new report
   def createData(): Array[Inventory] = {
     print("How many whole grains do you want to add ")
@@ -86,22 +87,23 @@ object inventory_data_management {
       var quantity = scala.io.StdIn.readInt()
       println("Enter the price : ")
       var price = scala.io.StdIn.readInt()
-      data(i) = new Inventory(grain, name, quantity, price)
+      data(i) = Inventory(grain, name, quantity, price)
       println(data(i).getString)
     }
-    return data
+    data
   }
+
   //Function to calculate report
   def calculateReport(data:Array[Inventory]): Unit ={
+    println()
     var report_str:String = ""
-    for(i <-0 until data.length){
-      report_str += "Grain : "+ data(i).grain.toString + " Name : " + data(i).name.toString + " Quantity : " + data(i).quantity.toString + " Price: " + data(i).price.toString + " Total Money : " + (data(i).quantity * data(i).price).toString + "\n"
+    for(i <-data.indices){
+      report_str += "Grain : "+ data(i).grain.toString + "   Name : " + data(i).name.toString + "   Quantity : " + data(i).quantity.toString + "    Price: " + data(i).price.toString + "   Total Money : " + (data(i).quantity * data(i).price).toString + "\n"
     }
     println(report_str)
   }
   //Function to save data in json
   def saveData(data: Array[Inventory]):Unit ={
-
     var json_mgr = new Gson()
     var grain_data: String = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/grains.json"
     var grain_file = new FileWriter(grain_data)
@@ -109,12 +111,12 @@ object inventory_data_management {
     grain_file.write(json_str)
     println("Following data will be stored in file : "+json_str)
     grain_file.close()
-
   }
 
+  //Function to get data from file to the String
   def getFileData(path: String): String = {
     var file = path
-    var data = Source.fromFile(file)
+    val data = Source.fromFile(file)
     var sentence: String = ""
     for (line <- data.getLines) {
       sentence += line
@@ -122,17 +124,11 @@ object inventory_data_management {
     sentence
   }
 
-
-  //=================================================================================================================
-
-
   //Rice class to store rice data
   case class Inventory(grain: String, name: String, quantity: Int, price: Int) {
     def getString: String = {
-      var strData = this.grain + " " + this.name + " " + this.quantity.toString + " " + this.price.toString
+      val strData = this.grain + " " + this.name + " " + this.quantity.toString + " " + this.price.toString
       strData
     }
   }
-
-
 }
