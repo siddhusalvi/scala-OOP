@@ -1,3 +1,9 @@
+import java.io.FileWriter
+
+import com.google.gson.Gson
+
+import scala.io.Source
+
 /*
 Filename: address_book
 
@@ -18,310 +24,360 @@ and Save As ... File menu options. The program's File menu will also have a Quit
 all open address books and terminating the program.
 */
 
-import java.io.{File, PrintWriter}
+//class person to store address book entries
+class Person {
+  var name_first = ""
+  var name_last = ""
+  var address = ""
+  var city = ""
+  var state = ""
+  var zip = 0
+  var contact = 0L
+
+  //Constructor
+  def this(f_name: String, l_name: String, given_address: String, given_city: String, given_state: String, code: Int, number: Long) {
+    this()
+    this.name_first = f_name
+    this.name_last = l_name
+    this.address = given_address
+    this.city = given_city
+    this.state = given_state
+    this.zip = code
+    this.contact = number
+  }
+
+  //Converting detail in String
+  def getString: String = {
+    "First name : " + this.name_first + "\n" + "Last name : " + this.name_last + "\n" + "Address : " + this.address + "\n" + "City : " + this.city + "\n" + "State : " + this.state + "\n" + "Zip code : " + this.zip + "\n" + "Contack no : " + this.contact + "\n"
+  }
+
+
+}
 
 object address_book {
   def main(args: Array[String]): Unit = {
     var flag = true
+    var register = getEmptyContact
+    var len = 0
+    var load_flag = false
+    var new_flag = false
     while (flag) {
       try {
-        print("How much People do you want to add in Address book : ")
-        val people = scala.io.StdIn.readInt()
-        var personData: Array[Person] = new Array[Person](people)
-        var filled_persons = 0
-        for (index <- personData.indices) {
-          personData(index) = new Person()
-        }
-        var operation_flag = true
-        while (operation_flag) {
-          print("\nWhat do you want to do :\n1.add details \n2.delete detail \n3.Save details \n4.Edit details \n5.display details \n6.sort \n7.Exit  : \n")
-          var choice = scala.io.StdIn.readInt()
-          if (choice == 7) {
-            operation_flag = false
-          } else if (choice == 1) {
-            if (filled_persons < people) {
-              personData(filled_persons).addInfo()
-              filled_persons += 1
-            } else {
-              print("\nCannot add more details Address book is full.\n")
-            }
-          } else if (choice == 2) {
-            if (filled_persons == 0) {
-              print("Address book is already empty\n")
-            } else if (filled_persons == 1) {
-              print("there is only single person data do you want to delete it ? (y) : ")
-              val input = scala.io.StdIn.readLine()
-              if (input.equals('y')) {
-                personData = null
-              }
-              filled_persons -= 1
-            } else {
-              var new_person_data = delete_info(personData)
-              personData = new_person_data
-              filled_persons -= 1
-            }
-
-          } else if (choice == 3) {
-            if (filled_persons == 0) {
-              print("\nAddress book is empty!\n")
-            } else {
-              val writer = new PrintWriter(new File("/home/admin1/IdeaProjects/OOPs/src/main/scala/Addressbook.txt"))
-              writer.write(getPersonData(personData))
-              writer.close()
-              print("Operation successful")
-            }
-
-
-          } else if (choice == 4) {
-            if (filled_persons == 0) {
-              print("\nAddress book is not filled\n")
-            } else {
-              var index = find_id_deletion(personData)
-              if (index >= 0) {
-                personData(index).editInfo()
-              }
-            }
-
-          } else if (choice == 5) {
-            for (index <- personData.indices) {
-              personData(index).display()
-            }
-          } else if (choice == 6) {
-
+        println("What do you want to do ?")
+        print("1.add user  2.Load address book from file  3.Edit details 4.Delete details 5.Save details 6.Display details 7.Exit ")
+        var choice = scala.io.StdIn.readInt()
+        if (choice == 7) {
+          flag = false
+        } else if (choice == 1) {
+          register = add_user(register)
+          len = getLength(register)
+        } else if (choice == 2) {
+          register = loadData
+          len = getLength(register)
+          print("Data is loaded from files \n")
+        } else if (choice == 3) {
+          if (len == 0) {
+            println("There is no record in address book can't edit.")
           } else {
-            print("\nInvalid input Please Enter valid input : \n")
+            register = editDetails(register)
+            len = getLength(register)
           }
+
+        } else if (choice == 4) {
+          if (len == 0) {
+            println("There is no record in address book can't delete.")
+          } else {
+            register = deleteDetails(register)
+            len = getLength(register)
+          }
+
+        } else if (choice == 5) {
+          saveData(register)
+        } else if (choice == 6) {
+          if (len == 0) {
+            println("There is no record in address book can't display")
+          } else {
+            println("Data is :")
+            printDetails(register)
+          }
+
+        } else {
+          print("\nYou have entered invalid choice : \n")
         }
-
-
-        flag = false
       }
       catch {
-        case _ => print("Something went wrong Error occurred.")
+        case a: NullPointerException => {
+          println("file is empty can't load data :")
+        }
+        case _ => print("Something went wrong Error occurred.\n")
       }
+    }
+
+  }
+
+  //============================================================================ main function close
+
+  //Function to update length
+  def getLength(persons: Array[Person]): Int = {
+    return persons.length
+  }
+
+  def add_user(persons: Array[Person]): Array[Person] = {
+    var new_person = getDeatailsFromUser()
+    if (persons.length == 0) {
+      var temp = new Array[Person](1)
+      temp(0) = new_person
+      return temp
+    } else {
+      var temp = new Array[Person](persons.length + 1)
+      for (i <- 0 until persons.length) {
+        temp(i) = persons(i)
+      }
+      temp(persons.length) = new_person
+      return temp
     }
   }
 
-  //Function to delete user
-  def delete_info(people: Array[Person]): Array[Person] = {
-    var operation_flag: Boolean = true
-    while (operation_flag) {
-      print("Enter user's first name to delete its record : ")
-      var name = scala.io.StdIn.readLine()
-      var present_flag: Boolean = false
-      var index = 0
-      for (man <- people.indices) {
-        if (people(man).first_name.equals(name)) {
-          print("First name is present." + index)
-          present_flag = true
-          operation_flag = false
-          var new_data = delete_user(people, index)
-          print("Informataion deleted.")
-          return new_data
-        }
-        if (!present_flag) {
-          index += 1
-        }
-      }
-      if (!present_flag) {
-        print("User not fount do you still want to delete (y) : ")
-        var input = scala.io.StdIn.readLine()
-        if (!input.equals("y")) {
-          operation_flag = false
-        }
-      }
-    }
-    people
+  //Function to load data from file
+  def loadData: Array[Person] = {
+    var json_mgr = new Gson()
+    var address_book: String = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/contact.json"
+    var strGrains = getFileData(address_book)
+    var data: Array[Person] = json_mgr.fromJson(strGrains, classOf[Array[Person]])
+    return data
   }
-  //Function to delete user by its index
-  def delete_user(people: Array[Person], index: Int): Array[Person] = {
-    var _temp_array: Array[Person] = new Array[Person](people.length - 1)
-    for (index <- people.indices) {
-      if (index != index) {
-        _temp_array(index) = people(index)
-      }
+
+  //Function to get data from file to the String
+  def getFileData(path: String): String = {
+    var file = path
+    val data = Source.fromFile(file)
+    var sentence: String = ""
+    for (line <- data.getLines) {
+      sentence += line
     }
-    _temp_array
+    sentence
   }
-  //Function to find user id for its deletion
-  def find_id_deletion(people: Array[Person]): Int = {
+
+  //Function to edit details
+  def editDetails(persons: Array[Person]): Array[Person] = {
     var check_flag = true
     while (check_flag) {
-      print("Enter user firstname to edit its details : ")
-      var username = scala.io.StdIn.readLine()
-      var index = 0
-      for (person <- people) {
-        if (person.first_name.equals(username)) {
-          return index
-        }
-        index += 1
-      }
-      print("User not found Do you still want to continue (y): ")
-      var input = scala.io.StdIn.readLine()
-      if (!input.equals("y")) {
+      print("Enter user first name search its details : ")
+      var name = scala.io.StdIn.readLine()
+      if (userIsPresent(persons, name)) {
+        var index = findUserIndex(persons, name)
+        persons(index) = modifyUser(persons(index))
+        return persons
         check_flag = false
+      } else {
+        println("User is absent do yo still want to continue (y)(n) : ")
+        var choice = scala.io.StdIn.readLine()
+        if (choice.equals("n")) {
+          check_flag = false
+        }
+      }
+
+    }
+    persons
+  }
+
+  //Function to modify person
+  def modifyUser(person: Person): Person = {
+    var choice_flag = true
+    while (choice_flag) {
+      println("What do you want to edit : 1:address  2:City  3:State  4:Zip code 5: Contact number : 6:exit:")
+      var choice = scala.io.StdIn.readInt()
+      if (choice == 1) {
+        print("Enter Person's Address : ")
+        person.address = scala.io.StdIn.readLine()
+      } else if (choice == 2) {
+        print("Enter Person's City ")
+        person.city = scala.io.StdIn.readLine()
+      } else if (choice == 3) {
+        print("Enter Person's State :")
+        person.state = scala.io.StdIn.readLine()
+      } else if (choice == 4) {
+        var zip = 0
+        var check_flag = true
+        while (check_flag) {
+          print("Enter Person's zip code : ")
+          zip = scala.io.StdIn.readInt()
+          if (zip.toString.length == 6) {
+            person.zip = zip
+            check_flag = false
+          } else {
+            print("Enter valid zip code :\n")
+          }
+        }
+      } else if (choice == 5) {
+        var phone = 0L
+        var check_flag = true
+        while (check_flag) {
+          print("Enter Person's phone no : ")
+          phone = scala.io.StdIn.readLong()
+          if (phone.toString.length == 10) {
+            person.contact = phone
+            check_flag = false
+          } else {
+            print("Enter valid phone number :\n")
+          }
+        }
+      } else if (choice == 6) {
+        choice_flag = false
+      } else {
+        print("\n Enter valid choice : ")
+      }
+    }
+    person
+  }
+
+  //Function to find user is valid or not
+  def userIsPresent(persons: Array[Person], name: String): Boolean = {
+    for (i <- persons) {
+      if (i.name_first.equals(name)) {
+        return true
+      }
+    }
+    false
+  }
+
+  //Function to find user index to delete it or edit it
+  def findUserIndex(persons: Array[Person], name: String): Int = {
+    for (index <- persons.indices) {
+      if (persons(index).name_first.equals(name)) {
+        return index
       }
     }
     -1
   }
-  //function to get user data in string format
-  def getPersonData(people: Array[Person]): String = {
-    var user_data = " "
-    for (index <- people) {
-      user_data += "First name : " + index.first_name + "\n"
-      user_data += "Last name : " + index.last_name + "\n"
-      user_data += "Address : " + index.address + "\n"
-      user_data += "City : " + index.city + "\n"
-      user_data += "Zip code : " + index.zip + "\n"
-      user_data += "Phone number : " + index.phone + "\n"
 
+  //Function to print details
+  def printDetails(persons: Array[Person]): Unit = {
+    for (i <- persons) {
+      println(i.getString)
     }
-    user_data
-  }
-  //function to sort user by last name
-  def sortByLastname(people: Array[Person]): Array[Person] = {
-    for (outer <- 0 until people.length - 1) {
-      for (inner <- 0 until people.length - 1 - outer) {
-        if (people(inner).last_name.compareTo(people(inner + 1).last_name) > 0) {
-          var temp = people(inner)
-          people(inner) = people(inner + 1)
-          people(inner + 1) = temp
-        }
-      }
-    }
-    people
   }
 
-  class Person {
-    var first_name: String = _
-    var last_name: String = _
-    var address: String = _
-    var city: String = _
-    var state: String = _
-    var zip: Long = _
-    var phone: Long = _
-
-    //Function to add data in contacts
-    def addInfo(): Unit = {
-      println("Enter the first name : ")
-      this.first_name = scala.io.StdIn.readLine()
-
-      println("Enter the last name : ")
-      this.last_name = scala.io.StdIn.readLine()
-
-      println("Enter your Address : ")
-      this.address = scala.io.StdIn.readLine()
-
-      println("Enter your City : ")
-      this.city = scala.io.StdIn.readLine()
-
-      var input_flag = true
-      while (input_flag) {
-        try {
-          println("Enter Your zip code : ")
-          this.zip = scala.io.StdIn.readLong()
-          if (zip >= 100000 && zip <= 999999) {
-            input_flag = false
-          }
-        } catch {
-          case _ => {
-            print("Please enter valid input : \n")
-          }
-        }
-      }
-      input_flag = true
-      while (input_flag) {
-        try {
-          println("Enter Your Phone number : ")
-          this.phone = scala.io.StdIn.readLong()
-          if (phone.toString.length == 10) {
-            input_flag = false
-          }
-        } catch {
-          case _ => {
-            print("Please enter valid input : \n")
-          }
-        }
-      }
+  //Function to delete details
+  def deleteDetails(persons: Array[Person]): Array[Person] = {
+    var choice_flag = true
+    print("Enter User'first name to delete its record ")
+    var name = scala.io.StdIn.readLine()
+    if (userIsPresent(persons, name)) {
+      var index = findUserIndex(persons, name)
+      var temp = deleteUser(persons, index)
+      return temp
+    } else {
+      print("\nUser not found")
+      persons
     }
+  }
 
-    //Function to display data
-    def display(): Unit = {
-      if (this == null) {
-        print("Adressbook  is empty ")
+  //Function to delete user
+  def deleteUser(persons: Array[Person], index: Int): Array[Person] = {
+    if (persons.length == 1) {
+      return getEmptyContact
+    } else {
+      var len = persons.length - 1
+      var temp_index = 0
+      var temp: Array[Person] = new Array[Person](len)
+      for (i <- 0 until persons.length) {
+        if (i != index) {
+          temp(temp_index) = persons(i)
+          temp_index += 1
+        }
+      }
+      temp
+
+    }
+  }
+
+  //Function to return empty person data
+  def getEmptyContact: Array[Person] = {
+    new Array[Person](0)
+  }
+
+  //Delete user
+  def saveData(persons: Array[Person]): Unit = {
+    var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/contact.json"
+    var filemanager = new FileWriter(path)
+    var gson = new Gson()
+    var bookstr = gson.toJson(persons)
+    println(bookstr)
+    filemanager.write(bookstr)
+    println("data saved in file.\n")
+    filemanager.close()
+  }
+
+  //Function to create new address book
+  def newRegister: Array[Person] = {
+    var error_flag = true
+    var people = 0
+    while (error_flag) {
+      print("\nHow many contacts do you want to create : ")
+      people = scala.io.StdIn.readInt()
+      if (people > 0) {
+        error_flag = false
       } else {
-        var data: String = ""
-        data += "First name : " + this.first_name + "\n"
-        data += "Last name : " + this.last_name + "\n"
-        data += "Address : " + this.address + "\n"
-        data += "City : " + this.city + "\n"
-        data += "Zip code : " + this.zip + "\n"
-        data += "Phone number : " + this.phone + "\n"
-        print(data)
-        println()
-      }
-
-    }
-
-    //Function to edit user data
-    def editInfo(): Unit = {
-      var choice_flag = true
-      while (choice_flag) {
-        print("\nWhat do you want to edit ? :\n" +
-          "1.Address\n2.City\n3.Zip code\n4.Phone number")
-        var choice = scala.io.StdIn.readInt()
-        if (choice == 1) {
-          println("Enter your Address : ")
-          this.address = scala.io.StdIn.readLine()
-
-
-        } else if (choice == 2) {
-          println("Enter your City : ")
-          this.city = scala.io.StdIn.readLine()
-
-        } else if (choice == 3) {
-          var input_flag = true
-          while (input_flag) {
-            try {
-              println("Enter Your zip code : ")
-              this.zip = scala.io.StdIn.readLong()
-              if (zip >= 100000 && zip <= 999999) {
-                input_flag = false
-              }
-            } catch {
-              case _ => {
-                print("Please enter valid input : \n")
-              }
-            }
-          }
-
-
-        } else if (choice == 4) {
-
-          var input_flag = true
-          while (input_flag) {
-            try {
-              println("Enter Your Phone number : ")
-              this.phone = scala.io.StdIn.readLong()
-              if (phone.toString.length == 10) {
-                input_flag = false
-              }
-            } catch {
-              case _ => {
-                print("Please enter valid input : \n")
-              }
-            }
-          }
-        } else {
-          print("please enter valid choice : \n")
-        }
-        print("Do you want more edits (n) :")
-        var ans: String = scala.io.StdIn.readLine()
-        if (ans.equals("n")) {
-          choice_flag = false
-        }
-
+        print("You can not create " + people + " Entries\n")
       }
     }
+    var book = new Array[Person](people)
+    for (i <- book.indices) {
+      println("Enter Person " + (i + 1) + " data : ")
+      book(i) = getDeatailsFromUser()
+    }
+    return book
   }
-} 
+
+  //Function to take input from user
+  def getDeatailsFromUser(): Person = {
+
+    print("Enter Person's first name : ")
+    var f_name = scala.io.StdIn.readLine()
+
+    print("Enter Person's last name : ")
+    var l_name = scala.io.StdIn.readLine()
+
+    print("Enter Person's Address : ")
+    var address = scala.io.StdIn.readLine()
+
+    print("Enter Person's City ")
+    var city = scala.io.StdIn.readLine()
+
+    print("Enter Person's State :")
+    var state = scala.io.StdIn.readLine()
+
+    var zip = 0
+
+    var check_flag = true
+    while (check_flag) {
+      print("Enter Person's zip code : ")
+      zip = scala.io.StdIn.readInt()
+      if (zip.toString.length == 6) {
+        check_flag = false
+      } else {
+        print("Enter valid zip code :\n")
+      }
+    }
+    var phone = 0L
+    check_flag = true
+    while (check_flag) {
+      print("Enter Person's phone no : ")
+      phone = scala.io.StdIn.readLong()
+      if (phone.toString.length == 10) {
+        check_flag = false
+      } else {
+        print("Enter valid phone number :\n")
+      }
+    }
+
+    var person = new Person(f_name, l_name, address, city, state, zip, phone)
+
+
+    person
+
+  }
+}
+
+
