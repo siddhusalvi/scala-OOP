@@ -50,8 +50,6 @@ class Person {
   def getString: String = {
     "First name : " + this.name_first + "\n" + "Last name : " + this.name_last + "\n" + "Address : " + this.address + "\n" + "City : " + this.city + "\n" + "State : " + this.state + "\n" + "Zip code : " + this.zip + "\n" + "Contack no : " + this.contact + "\n"
   }
-
-
 }
 
 object address_book {
@@ -64,9 +62,9 @@ object address_book {
     while (flag) {
       try {
         println("What do you want to do ?")
-        print("1.add user  2.Load address book from file  3.Edit details 4.Delete details 5.Save details 6.Display details 7.Exit ")
+        print("1.add user  2.Load address book from file  3.Edit details 4.Delete details 5.Save details 6.Display details 7.sort by last name 8 Exit ")
         var choice = scala.io.StdIn.readInt()
-        if (choice == 7) {
+        if (choice == 8) {
           flag = false
         } else if (choice == 1) {
           register = add_user(register)
@@ -101,6 +99,12 @@ object address_book {
             printDetails(register)
           }
 
+        } else if (choice == 7) {
+          if (len == 0) {
+            println("There is no record in address book can't sort the data ")
+          } else {
+            register = sortByLastname(register)
+          }
         } else {
           print("\nYou have entered invalid choice : \n")
         }
@@ -115,8 +119,6 @@ object address_book {
 
   }
 
-  //============================================================================ main function close
-
   //Function to update length
   def getLength(persons: Array[Person]): Int = {
     return persons.length
@@ -130,8 +132,8 @@ object address_book {
       return temp
     } else {
       var temp = new Array[Person](persons.length + 1)
-      for (i <- 0 until persons.length) {
-        temp(i) = persons(i)
+      for (index <- 0 until persons.length) {
+        temp(index) = persons(index)
       }
       temp(persons.length) = new_person
       return temp
@@ -307,6 +309,20 @@ object address_book {
     filemanager.write(bookstr)
     println("data saved in file.\n")
     filemanager.close()
+  }
+
+  //Function to sort by last name
+  def sortByLastname(people: Array[Person]): Array[Person] = {
+    for (outer <- 0 until people.length - 1) {
+      for (inner <- 0 until people.length - 1 - outer) {
+        if (people(inner).name_last.compareTo(people(inner + 1).name_last) > 0) {
+          var temp = people(inner)
+          people(inner) = people(inner + 1)
+          people(inner + 1) = temp
+        }
+      }
+    }
+    people
   }
 
   //Function to create new address book
