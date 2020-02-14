@@ -24,20 +24,24 @@ object stock_account {
         var data_arr = file_data.split(" ")
         if (data_arr.length % 3 != 0) {
           println("Error occurred while opening stock file")
-        }
-        var stock_count = data_arr.length / 3
-        var stocks = new Array[Stock](stock_count)
+          flag = false
+        }else{
 
-        for (index <- 0 until stocks.length) {
-          var obj_index = index * 3
-          var stock_name = data_arr(obj_index)
-          var stock_count = data_arr(obj_index + 1).toInt
-          var stock_price = data_arr(obj_index + 2).toInt
-          stocks(index) = new Stock(stock_name, stock_count, stock_price)
-          println("Stock is : " + stocks(index).getString)
+          var stock_count = data_arr.length / 3
+          var stocks = new Array[Stock](stock_count)
+
+          for (index <- 0 until stocks.length) {
+            var obj_index = index * 3
+            var stock_name = data_arr(obj_index)
+            var stock_count = data_arr(obj_index + 1).toInt
+            var stock_price = data_arr(obj_index + 2).toInt
+            stocks(index) = new Stock(stock_name, stock_count, stock_price)
+            println("Stock is : " + stocks(index).getString)
+          }
+          var stk_mgr = new StockPortfolio()
+          stk_mgr.calculate_report(stocks)
+          flag = false
         }
-        calculate_report(stocks)
-        flag = false
       }
       catch {
         case _ => print("Something went wrong Error occurred.")
@@ -45,19 +49,21 @@ object stock_account {
     }
   }
 
-  //Function to calculate stock report
-  def calculate_report(data: Array[Stock]): Unit = {
-    var total = 0
-    println()
-    println("Stock report is : ")
-    for (i <- 0 until data.length) {
-      var amount = data(i).price * data(i).count
-      total += amount
-      println(data(i).name + " :  " + data(i).price + " * " + data(i).count + " = amount " + amount)
+  class StockPortfolio{
+    //Function to calculate stock report
+    def calculate_report(data: Array[Stock]): Unit = {
+      var total = 0
+      println()
+      println("Stock report is : ")
+      for (i <- 0 until data.length) {
+        var amount = data(i).price * data(i).count
+        total += amount
+        println(data(i).name + " :  " + data(i).price + " * " + data(i).count + " = amount " + amount)
+      }
+      println("Total Price of all shares : " + total)
     }
-    println("Total Price of all shares : " + total)
-
   }
+
 
   //Function to get data from file to the String
   def getFileData(path: String): String = {
