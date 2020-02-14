@@ -48,7 +48,7 @@ object stock_account {
       }
     }
   }
-
+  //class portfolio for valuation
   class StockPortfolio{
     //Function to calculate stock report
     def calculate_report(data: Array[Stock]): Unit = {
