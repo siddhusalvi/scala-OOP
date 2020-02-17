@@ -1,5 +1,7 @@
 import java.io.FileWriter
+
 import com.google.gson.Gson
+
 import scala.io.Source
 
 /*
@@ -32,6 +34,22 @@ class StockAccount {
     } else {
       var zero: Double = 0f
       zero
+    }
+  }
+
+  //Function to check list contains share or not
+  def isContains(share: String): Boolean = {
+    if (isEmpty) {
+      false
+    } else {
+      var temp_node = this.head
+      while (temp_node != null) {
+        if (temp_node.share_name.equals(share)) {
+          return true
+        }
+        temp_node = temp_node.next
+      }
+      false
     }
   }
 
@@ -95,6 +113,64 @@ class StockAccount {
       }
     } else {
       print("\nShare Not found can't delete")
+    }
+  }
+
+  //Function to save data
+  def saveData(): Unit = {
+    if (isNotEmpty) {
+      var data_arr = new Array[Data](this.len)
+      var temp_node = this.head
+      var index = 0
+      while (temp_node != isEmpty && index < this.len) {
+        data_arr(index) = new Data(temp_node.share_name, temp_node.price, temp_node.quantity)
+        temp_node = temp_node.next
+        index += 1
+      }
+      var json_mgr = new Gson()
+      var json_str = json_mgr.toJson(data_arr)
+      var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/stocks.json"
+      var file = new FileWriter(path)
+      file.write(json_str)
+      file.close()
+
+
+    } else {
+      print("Record is empty")
+    }
+  }
+
+  //Function to check list is not empty
+  def isNotEmpty: Boolean = {
+    if (isEmpty) {
+      false
+    } else {
+      true
+    }
+  }
+
+  //function to check list is empty or not
+  def isEmpty: Boolean = {
+    if (size == 0) {
+      true
+    } else {
+      false
+    }
+  }
+
+  //Function to return length of list
+  def size: Int = {
+    this.len
+  }
+
+  //Function to load data
+  def loadData(): Unit = {
+    var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/stocks.json"
+    var json_arr = getFileData(path)
+    var json_mgr = new Gson()
+    var data_arr = json_mgr.fromJson(json_arr, classOf[Array[Data]])
+    for (i <- data_arr) {
+      buy(i.share_name, i.price, i.quantity)
     }
   }
 
@@ -134,57 +210,6 @@ class StockAccount {
     }
   }
 
-  //Function to check list contains share or not
-  def isContains(share: String): Boolean = {
-    if (isEmpty) {
-      false
-    } else {
-      var temp_node = this.head
-      while (temp_node != null) {
-        if (temp_node.share_name.equals(share)) {
-          return true
-        }
-        temp_node = temp_node.next
-      }
-      false
-    }
-  }
-
-  //Function to save data
-  def saveData():Unit={
-    if(isNotEmpty){
-      var data_arr = new Array[Data](this.len)
-      var temp_node = this.head
-      var index = 0
-      while(temp_node!=isEmpty && index<this.len){
-        data_arr(index) = new Data(temp_node.share_name,temp_node.price,temp_node.quantity)
-        temp_node = temp_node.next
-        index += 1
-      }
-      var json_mgr = new Gson()
-      var json_str = json_mgr.toJson(data_arr)
-      var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/stocks.json"
-      var file = new FileWriter(path)
-      file.write(json_str)
-      file.close()
-
-
-    }else{
-      print("Record is empty")
-    }
-  }
-
-  //Function to load data
-  def loadData():Unit={
-    var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/stocks.json"
-    var json_arr = getFileData(path)
-    var json_mgr = new Gson()
-    var data_arr = json_mgr.fromJson(json_arr,classOf[Array[Data]])
-    for(i <- data_arr){
-      buy(i.share_name,i.price,i.quantity)
-    }
-  }
-
   //Function to get data from file to the String
   def getFileData(path: String): String = {
     var file = path
@@ -196,15 +221,15 @@ class StockAccount {
     sentence
   }
 
-
   //Function to print list
   def printReport: Unit = {
     if (isNotEmpty) {
       var total: Double = 0
       var output = ""
       var temp: Node = this.head
+      println("User Portfolio : \n" +"Price\tQuantity\tamount\tprice")
       while (temp != null) {
-        output += temp.share_name + "  " + temp.quantity + "  " + temp.price + " " + (temp.quantity * temp.price) + "\n"
+        output += temp.price +"\t"+temp.quantity  + "\t"+ (temp.quantity * temp.price) +"\t"+temp.share_name +"\n"
         total += (temp.quantity * temp.price)
         temp = temp.next
       }
@@ -213,29 +238,6 @@ class StockAccount {
     } else {
       print("list is empty")
     }
-  }
-
-  //Function to check list is not empty
-  def isNotEmpty: Boolean = {
-    if (isEmpty) {
-      false
-    } else {
-      true
-    }
-  }
-
-  //function to check list is empty or not
-  def isEmpty: Boolean = {
-    if (size == 0) {
-      true
-    } else {
-      false
-    }
-  }
-
-  //Function to return length of list
-  def size: Int = {
-    this.len
   }
 
   //class Node to store data
@@ -253,10 +255,11 @@ class StockAccount {
     }
   }
 
-  class Data{
+  class Data {
     var share_name = ""
     var price: Double = 0
     var quantity: Int = 0
+
     def this(stock_name: String, value: Double, lot: Int) {
       this()
       this.share_name = stock_name
@@ -268,7 +271,7 @@ class StockAccount {
 }
 
 //class to manage company share
-class CompanyShares{
+class CompanyShares {
   var len: Int = 0
   var head: Node = null
 
@@ -284,6 +287,36 @@ class CompanyShares{
       var zero: Double = 0f
       zero
     }
+  }
+
+  //Function to check list contains share or not
+  def isContains(share: String): Boolean = {
+    if (isEmpty) {
+      false
+    } else {
+      var temp_node = this.head
+      while (temp_node != null) {
+        if (temp_node.share_name.equals(share)) {
+          return true
+        }
+        temp_node = temp_node.next
+      }
+      false
+    }
+  }
+
+  //function to check list is empty or not
+  def isEmpty: Boolean = {
+    if (size == 0) {
+      true
+    } else {
+      false
+    }
+  }
+
+  //Function to return length of list
+  def size: Int = {
+    this.len
   }
 
   //Function to validate sell request
@@ -349,6 +382,41 @@ class CompanyShares{
     }
   }
 
+  //Function to save data
+  def saveData(): Unit = {
+    if (isNotEmpty) {
+      var data_arr = new Array[Data](this.len)
+      var temp_node = this.head
+      var index = 0
+      while (temp_node != isEmpty && index < this.len) {
+        data_arr(index) = new Data(temp_node.share_name, temp_node.price, temp_node.quantity)
+        temp_node = temp_node.next
+        index += 1
+      }
+      var json_mgr = new Gson()
+      var json_str = json_mgr.toJson(data_arr)
+      var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/CompanyStocks.json"
+      var file = new FileWriter(path)
+      file.write(json_str)
+      file.close()
+
+
+    } else {
+      print("Record is empty")
+    }
+  }
+
+  //Function to load data
+  def loadData(): Unit = {
+    var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/CompanyStocks.json"
+    var json_arr = getFileData(path)
+    var json_mgr = new Gson()
+    var data_arr = json_mgr.fromJson(json_arr, classOf[Array[Data]])
+    for (i <- data_arr) {
+      add(i.share_name, i.price, i.quantity)
+    }
+  }
+
   //Function to Add shares
   def add(stock_name: String, value: Double, count: Int): Unit = {
     if (isEmpty) {
@@ -384,57 +452,6 @@ class CompanyShares{
     }
   }
 
-  //Function to check list contains share or not
-  def isContains(share: String): Boolean = {
-    if (isEmpty) {
-      false
-    } else {
-      var temp_node = this.head
-      while (temp_node != null) {
-        if (temp_node.share_name.equals(share)) {
-          return true
-        }
-        temp_node = temp_node.next
-      }
-      false
-    }
-  }
-
-  //Function to save data
-  def saveData():Unit={
-    if(isNotEmpty){
-      var data_arr = new Array[Data](this.len)
-      var temp_node = this.head
-      var index = 0
-      while(temp_node!=isEmpty && index<this.len){
-        data_arr(index) = new Data(temp_node.share_name,temp_node.price,temp_node.quantity)
-        temp_node = temp_node.next
-        index += 1
-      }
-      var json_mgr = new Gson()
-      var json_str = json_mgr.toJson(data_arr)
-      var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/CompanyStocks.json"
-      var file = new FileWriter(path)
-      file.write(json_str)
-      file.close()
-
-
-    }else{
-      print("Record is empty")
-    }
-  }
-
-  //Function to load data
-  def loadData():Unit={
-    var path = "/home/admin1/IdeaProjects/OOPs/src/main/scala/JsonData/CompanyStocks.json"
-    var json_arr = getFileData(path)
-    var json_mgr = new Gson()
-    var data_arr = json_mgr.fromJson(json_arr,classOf[Array[Data]])
-    for(i <- data_arr){
-      add(i.share_name,i.price,i.quantity)
-    }
-  }
-
   //Function to get data from file to the String
   def getFileData(path: String): String = {
     var file = path
@@ -446,19 +463,18 @@ class CompanyShares{
     sentence
   }
 
-
   //Function to print list
   def printReport: Unit = {
     if (isNotEmpty) {
       var total: Double = 0
       var output = ""
       var temp: Node = this.head
+      println("Share market listed Companies : ")
+      println("\nPrice \tQuantity \tName ")
       while (temp != null) {
-        output += temp.share_name + "  " + temp.quantity + "  " + temp.price + " " + (temp.quantity * temp.price) + "\n"
-        total += (temp.quantity * temp.price)
+        output += temp.price + "\t" + temp.quantity + "\t " + temp.share_name + "\n"
         temp = temp.next
       }
-      output += "Total is : " + total
       print(output)
     } else {
       print("list is empty")
@@ -472,20 +488,6 @@ class CompanyShares{
     } else {
       true
     }
-  }
-
-  //function to check list is empty or not
-  def isEmpty: Boolean = {
-    if (size == 0) {
-      true
-    } else {
-      false
-    }
-  }
-
-  //Function to return length of list
-  def size: Int = {
-    this.len
   }
 
   //class Node to store data
@@ -503,10 +505,11 @@ class CompanyShares{
     }
   }
 
-  class Data{
+  class Data {
     var share_name = ""
     var price: Double = 0
     var quantity: Int = 0
+
     def this(stock_name: String, value: Double, lot: Int) {
       this()
       this.share_name = stock_name
@@ -520,14 +523,97 @@ class CompanyShares{
 object commercial_data {
   def main(args: Array[String]): Unit = {
     var flag = true
+    var company_data = new CompanyShares
+    var stock_account = new StockAccount
+    company_data.loadData()
+    println("There is company list in Comapany Share class if you issue new company share and if its not present in the company share class then\n it will be direclty listed to the share market with initial share size 10000")
+    println("Initial Stock market : ")
+    company_data.printReport
+
     while (flag) {
       try {
-        flag = false
+
+        println("\nWhat do you want to do : ")
+        println("1:buy shares \t2:sell shares \t3:View companies in share market \n4:View user data \t5:Save company data \t6:Load company data \t7:Save user data \t8:load user data 9:exit")
+
+
+        var choice = scala.io.StdIn.readInt()
+        if (choice == 9) {
+          flag = false
+        } else if (choice == 1) {
+          buyShare(company_data, stock_account)
+        } else if (choice == 2) {
+          sellShare(company_data, stock_account)
+        } else if (choice == 3) {
+          company_data.printReport
+        } else if (choice == 4) {
+          stock_account.printReport
+        } else if (choice == 5) {
+          company_data.saveData()
+          println("Operation successful")
+        } else if (choice == 6) {
+          company_data.loadData()
+          println("Operation successful")
+
+        } else if (choice == 7) {
+          stock_account.saveData()
+          println("Operation successful")
+        }else if (choice == 8) {
+          stock_account.loadData()
+          println("Operation successful")
+        } else {
+          println("Enter valid input : ")
+        }
       }
       catch {
+        case exception1: NullPointerException => println("File is empty no data found")
+        case exception2: NumberFormatException => println("Enter valid input")
         case _ => print("Something went wrong Error occurred.")
       }
 
+    }
+  }
+
+  //Function to buy shares
+  def buyShare(shares: CompanyShares, account: StockAccount): Unit = {
+    var initialQuantity = 10000
+    println("Enter the share name : ")
+    var name = scala.io.StdIn.readLine()
+    println("Enter the share price : ")
+    var price = scala.io.StdIn.readDouble()
+    println("Enter the share quantity : ")
+    var quantity = scala.io.StdIn.readInt()
+    if (shares.isContains(name)) {
+      println("stock is available at market")
+      shares.sell(name, price, quantity)
+      account.buy(name, price, quantity)
+      println("Operation successful")
+    } else {
+      println("stock is not available at market adding new stock : " + name + "with 10000 quantity :")
+      shares.add(name, price, initialQuantity)
+      shares.sell(name, price, quantity)
+      account.buy(name, price, quantity)
+      println("Operation successful")
+    }
+
+  }
+
+  //Function to sell shares
+  def sellShare(shares: CompanyShares, account: StockAccount): Unit = {
+
+    println("Enter the share name : ")
+    var name = scala.io.StdIn.readLine()
+    println("Enter the share price : ")
+    var price = scala.io.StdIn.readDouble()
+    println("Enter the share quantity : ")
+    var quantity = scala.io.StdIn.readInt()
+    if (account.isNotContains(name)) {
+      println("Share not found in record : ")
+    } else if (!account.requestIsValid(name, quantity)) {
+      println("Please enter valid sell request : ")
+    } else {
+      account.sell(name, price, quantity)
+      shares.add(name, price, quantity)
     }
   }
 }
