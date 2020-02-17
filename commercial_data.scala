@@ -37,6 +37,8 @@ class StockAccount {
     }
   }
 
+
+
   //Function to check list contains share or not
   def isContains(share: String): Boolean = {
     if (isEmpty) {
@@ -288,6 +290,32 @@ class CompanyShares {
       zero
     }
   }
+
+  //Function to remove share from stock market
+  def removeShare(stock_name:String): Unit ={
+    var price:Double = 100
+    if(isContains(stock_name)){
+      sell(stock_name,price,getShareQuantity(stock_name))
+    }else{
+      println("share not found")
+    }
+  }
+
+  //Function to get share count
+  def getShareQuantity(share_name:String):Int={
+    if(isContains(share_name)){
+      var temp_node = this.head
+      while (temp_node!= null && !temp_node.share_name.equals(share_name)){
+        temp_node = temp_node.next
+      }
+      return temp_node.quantity
+    }else{
+      0
+    }
+  }
+
+
+
 
   //Function to check list contains share or not
   def isContains(share: String): Boolean = {
